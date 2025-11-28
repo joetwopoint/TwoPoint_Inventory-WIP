@@ -12,7 +12,7 @@
 
 # TwoPoint_Inventory
 
-A **standalone, SQL-backed inventory & money** system tailored for **KuzQuality Drug Empire** on a vMenu server. 
+A **Partial standalone, SQL-backed inventory & money** system tailored for **KuzQuality Drug Empire** on a vMenu server. 
 Single drop-in resource that powers items, cash, NPC selling, lockers, weapon checks, and proximity actions—**without** touching your other scripts.
 
 > **Hard dependency for heat alerts:** [Badger’s PoliceEMSActivity](https://docs.badger.store/fivem-discord-scripts/policeemsactivity) — used to detect on‑duty LEO for heat notifications.
