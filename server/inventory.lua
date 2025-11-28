@@ -133,6 +133,12 @@ function Inv_GetData(src, item)
     return { count = count, label = def.label, weight = def.weight, max_stack = def.max_stack }
 end
 
+-- Expose capacity check for /give
+function Inv_CanHold(src, item, amount)
+    local _, inv = getInv(src)
+    return canHold(inv, item, amount)
+end
+
 AddEventHandler("onResourceStart", function(res)
     if res == GetCurrentResourceName() then
         LoadItemDefs()

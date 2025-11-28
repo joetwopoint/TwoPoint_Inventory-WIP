@@ -1,7 +1,7 @@
 -- kq_link / client/notify.lua
 RegisterNetEvent("kq_link:notify", function(msg, ntype)
     if not msg or msg == "" then return end
-    -- Plain fallback via chat
+    -- Plain chat fallback
     TriggerEvent('chat:addMessage', { args = { tostring(msg) } })
 end)
 

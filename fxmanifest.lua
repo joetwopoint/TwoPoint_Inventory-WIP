@@ -4,8 +4,8 @@ lua54 'yes'
 
 name 'kq_link'
 author 'TwoPoint Development'
-description 'Standalone SQL inventory for KuzQuality Drug Empire (vMenu). Money=notifications only. Includes server-side /inventory fallback.'
-version '1.0.5'
+description 'Standalone SQL inventory for KuzQuality Drug Empire (vMenu). Money=notifications only. Includes /inventory + /give.'
+version '1.0.6'
 
 shared_script 'config.lua'
 
@@ -17,6 +17,12 @@ server_scripts {
 
 client_scripts {
     'client/notify.lua'
+
+    'client/weapons.lua'
+
+    'client/npc_sell.lua'
+
+    'client/lockers.lua'
 }
 
 server_export 'AddPlayerItem'
