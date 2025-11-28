@@ -1,4 +1,5 @@
 -- kq_link / server/link.lua
+
 -- Inventory exports
 exports("AddPlayerItem", function(player, item, amount, meta) return Inv_AddItem(player, item, amount, meta) end)
 exports("AddPlayerItemToFit", function(player, item, amount, meta) return Inv_AddItemToFit(player, item, amount, meta) end)
@@ -50,14 +51,14 @@ exports("Notify", function(player, message, ntype)
     TriggerClientEvent("kq_link:notify", player, message or "", ntype or "info")
 end)
 
--- Serve inventory to the caller (/inventory)
-RegisterNetEvent("kqdei:requestInventory", function()
-    local src = source
+-- === HOTFIX: server-side /inventory & shared sender ===
+function _KQ_SendInventory(src, mode)
     local function getIdentifier(src)
         for _, id in ipairs(GetPlayerIdentifiers(src)) do if id:find("license:") == 1 then return id end end
         for _, id in ipairs(GetPlayerIdentifiers(src)) do if id:find("fivem:") == 1 then return id end end
         return GetPlayerIdentifier(src, 0) or ("src:"..tostring(src))
     end
+
     local id = getIdentifier(src)
     if not Inventories[id] or not Inventories[id].loaded then
         local rows = DB.fetchAll([[SELECT item,amount FROM kqde_inventories WHERE identifier = ?]], { id })
@@ -68,22 +69,47 @@ RegisterNetEvent("kqdei:requestInventory", function()
         end
         Inventories[id] = { items = items, loaded = true }
     end
-    
+
     local coll = {}
     for k,v in pairs(Inventories[id].items or {}) do
         local label = (ItemDefs[k] and ItemDefs[k].label) and ItemDefs[k].label or k
         table.insert(coll, {item=k, label=label, count=v})
     end
-    -- sorting on server as alpha (label) by default
-    if mode and tostring(mode):lower() == 'count' then
-        table.sort(coll, function(a,b)
-            if a.count == b.count then return string.lower(a.label) < string.lower(b.label) end
-            return a.count > b.count
-        end)
-    else
-        -- default alpha by label
-    end
-    table.sort(coll, function(a,b) return string.lower(a.label) < string.lower(b.label) end)
-    TriggerClientEvent("kq_link:showInventory", src, coll)
 
+    mode = tostring(mode or ""):lower()
+    if mode == 'count' then
+        table.sort(coll, function(a,b) if a.count == b.count then return a.label:lower() < b.label:lower() end return a.count > b.count end)
+    else
+        table.sort(coll, function(a,b) return a.label:lower() < b.label:lower() end)
+    end
+
+    -- Prefer chat if available (plain white text)
+    if GetResourceState('chat') == 'started' or GetResourceState('chat') == 'starting' then
+        if #coll == 0 then
+            TriggerClientEvent('chat:addMessage', src, { args = { 'Inventory', '(empty)' } })
+        else
+            TriggerClientEvent('chat:addMessage', src, { args = { 'Inventory', 'Items:' } })
+            for _, row in ipairs(coll) do
+                TriggerClientEvent('chat:addMessage', src, { args = { string.format('%s x%s', row.label or row.item, tostring(row.count or 0)) } })
+            end
+        end
+    else
+        -- Fall back to client event if another UI listens
+        TriggerClientEvent("kq_link:showInventory", src, coll)
+    end
+end
+
+RegisterNetEvent("kqdei:requestInventory", function(mode)
+    local src = source
+    _KQ_SendInventory(src, mode)
 end)
+
+RegisterCommand("inventory", function(src, args, raw)
+    if src == 0 then
+        print("^1[kq_link]^7 /inventory is player-only")
+        return
+    end
+    local mode = (args and (args[1] or args[0])) or ""
+    _KQ_SendInventory(src, mode)
+end, false)
+-- === END HOTFIX ===

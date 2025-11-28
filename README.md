@@ -1,25 +1,25 @@
+# TwoPoint_Inventory — Single-Folder Build (**kq_link**) with /inventory Hotfix
 
-# TwoPoint_Inventory — Single-Folder Build (**kq_link**)
+This folder must be named **kq_link** so KuzQuality (`exports.kq_link:*`) works.
 
-The folder **must be named `kq_link`** so KuzQuality scripts that call `exports.kq_link:*` keep working.  
-
-## What’s inside
-- SQL-backed inventory just for KuzQuality Drug Empire (vMenu friendly; no ESX/QBCore).
-- No external money integration — money calls show notifications only.
-- `/inventory` command (labels-only, white text). Use `/inventory count` to sort by quantity.
-- Server exports match the original `kq_link` API.
-
-## Install
-1) Drop the **kq_link** folder into `resources/`.
-2) Import SQL (MySQL):
-   - `sql/kq_link_inventory.sql`
-   - `sql/kqde_itemdefs_ALL_upsert.sql` (re-runnable; recommended)
-3) `server.cfg` example:
+## Setup (quick)
+1) Import SQL (pick one):
+   - `sql/kq_link_inventory.sql` **and** `sql/kqde_itemdefs_ALL_upsert.sql`, or
+   - `sql/TwoPoint_Inventory_all_in_one.sql` (creates tables + upserts in one go)
+2) server.cfg
 ```
-ensure oxmysql              # or mysql-async
+ensure oxmysql                 # or mysql-async
 ensure kq_link
 ensure kq_meth
 ensure kq_weed
 ensure kq_cocaine
 ensure kq_amphetamines
 ```
+3) /inventory
+   - `/inventory` → alphabetic by label
+   - `/inventory count` → by quantity
+
+## Notes
+- Inventory is SQL-only and scoped for Drug Empire modules.
+- Money calls show notifications only.
+- Includes server-side `/inventory` so it works even if the client file doesn't load.

@@ -1,11 +1,11 @@
-fx_version '1.0.4'
+fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
 name 'kq_link'
 author 'TwoPoint Development'
-description 'Standalone kq_link layer + SQL inventory for KuzQuality Drug Empire (vMenu). Money calls only show notifications.'
-version '1.0.4'
+description 'Standalone SQL inventory for KuzQuality Drug Empire (vMenu). Money=notifications only. Includes server-side /inventory fallback.'
+version '1.0.5'
 
 shared_script 'config.lua'
 

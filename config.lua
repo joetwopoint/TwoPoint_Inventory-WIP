@@ -1,20 +1,20 @@
--- kq_link / config.lua
+-- TwoPoint Development - kq_link
 Config = {}
 
 -- DB adapter: 'auto' | 'oxmysql' | 'mysql-async'
 Config.DB = 'auto'
 
--- Item whitelist enforcement (uses SQL table kqde_itemdefs)
+-- Whitelist enforcement (uses kqde_itemdefs)
 Config.RequireWhitelist = true
 
--- Caps
+-- Capacity
 Config.MaxUniqueItems = 256
-Config.MaxWeight = 0
+Config.MaxWeight = 0 -- 0 = ignore
 Config.MaxGiveAmountPerCall = 100000
 
--- Jobs toggle (no framework by default)
+-- Jobs toggle (unused)
 Config.EnableJobs = false
 
--- Money behavior: notifications only
+-- Money: notifications only (no framework)
 Config.ShowMoneyNotifications = true
 Config.MoneyCurrency = '$'
