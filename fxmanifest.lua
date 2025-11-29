@@ -1,37 +1,21 @@
 fx_version 'cerulean'
 game 'gta5'
+
+name 'TwoPoint_Inventory'
+author 'TwoPoint Development'
+description 'Standalone SQL inventory + wallet + NPC selling + lockers for KQ Drug Empire (vMenu).'
+version '1.0.0'
+
 lua54 'yes'
 
-name 'kq_link'
-author 'TwoPoint Development'
-description 'Standalone SQL inventory for KuzQuality Drug Empire (vMenu). Money=notifications only. Includes /inventory + /give.'
-version '1.0.6'
-
-shared_script 'config.lua'
+client_scripts {
+  'client/npc_sell.lua',
+  'client/lockers.lua',
+  'client/weapons.lua'
+}
 
 server_scripts {
-    'server/db.lua',
-    'server/inventory.lua',
-    'server/link.lua'
+  '@oxmysql/lib/MySQL.lua',
+  'server/db.lua',
+  'server/link.lua'
 }
-
-client_scripts {
-    'client/notify.lua'
-
-    'client/weapons.lua'
-
-    'client/npc_sell.lua'
-
-    'client/lockers.lua'
-}
-
-server_export 'AddPlayerItem'
-server_export 'AddPlayerItemToFit'
-server_export 'RemovePlayerItem'
-server_export 'GetPlayerItemCount'
-server_export 'GetPlayerItemData'
-server_export 'AddPlayerMoney'
-server_export 'RemovePlayerMoney'
-server_export 'GetPlayersWithJob'
-server_export 'RegisterUsableItem'
-server_export 'Notify'

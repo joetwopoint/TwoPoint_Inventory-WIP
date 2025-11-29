@@ -1,57 +1,45 @@
--- kq_link / server/db.lua
 DB = {}
 
-local function usingOx()
-    if Config.DB == 'oxmysql' then return true end
-    if Config.DB == 'mysql-async' then return false end
-    if MySQL and MySQL.query then return true end
-    if GetResourceState('oxmysql') == 'started' or GetResourceState('oxmysql') == 'starting' then return true end
-    return false
+local usingOx = GetResourceState('oxmysql') == 'started'
+
+if not usingOx then
+  print('^3[TwoPoint_Inventory]^7 oxmysql not started; falling back to mysql-async if present.')
 end
 
-local function usingAsync()
-    if Config.DB == 'mysql-async' then return true end
-    if Config.DB == 'oxmysql' then return false end
-    if MySQL and MySQL.Async and MySQL.Async.fetchAll then return true end
-    if GetResourceState('mysql-async') == 'started' or GetResourceState('mysql-async') == 'starting' then return true end
-    return false
+function DB.execute(q, p, cb)
+  p = p or {}
+  if usingOx then
+    return MySQL.update.await(q, p)
+  elseif MySQL and MySQL.Sync and MySQL.Sync.execute then
+    return MySQL.Sync.execute(q, p)
+  else
+    print('^1[TwoPoint_Inventory]^7 No SQL adapter available.')
+    return 0
+  end
 end
 
-local function _await(invoker)
-    local p = promise.new()
-    invoker(function(res) p:resolve(res) end)
-    return Citizen.Await(p)
+function DB.fetchAll(q, p)
+  p = p or {}
+  if usingOx then
+    return MySQL.query.await(q, p) or {}
+  elseif MySQL and MySQL.Sync and MySQL.Sync.fetchAll then
+    return MySQL.Sync.fetchAll(q, p) or {}
+  else
+    return {}
+  end
 end
 
-function DB.fetchAll(q, p) p = p or {}
-    if usingOx() and MySQL and MySQL.query then
-        return _await(function(cb) MySQL.query(q, p, cb) end)
-    elseif usingAsync() and MySQL and MySQL.Async and MySQL.Async.fetchAll then
-        return _await(function(cb) MySQL.Async.fetchAll(q, p, cb) end)
-    else
-        print("^1[kq_link]^7 No DB adapter found (install oxmysql or mysql-async).")
-        return {}
+function DB.scalar(q, p)
+  p = p or {}
+  if usingOx then
+    local r = MySQL.single.await(q, p)
+    if type(r) == 'table' then
+      local _,v = next(r); return v
     end
-end
-
-function DB.scalar(q, p) p = p or {}
-    if usingOx() and MySQL and MySQL.scalar then
-        return _await(function(cb) MySQL.scalar(q, p, cb) end)
-    elseif usingAsync() and MySQL and MySQL.Async and MySQL.Async.fetchScalar then
-        return _await(function(cb) MySQL.Async.fetchScalar(q, p, cb) end)
-    else
-        print("^1[kq_link]^7 No DB scalar available.")
-        return nil
-    end
-end
-
-function DB.execute(q, p) p = p or {}
-    if usingOx() and MySQL and MySQL.update then
-        return _await(function(cb) MySQL.update(q, p, cb) end)
-    elseif usingAsync() and MySQL and MySQL.Async and MySQL.Async.execute then
-        return _await(function(cb) MySQL.Async.execute(q, p, cb) end)
-    else
-        print("^1[kq_link]^7 No DB execute available.")
-        return 0
-    end
+    return r
+  elseif MySQL and MySQL.Sync and MySQL.Sync.fetchScalar then
+    return MySQL.Sync.fetchScalar(q, p)
+  else
+    return nil
+  end
 end
