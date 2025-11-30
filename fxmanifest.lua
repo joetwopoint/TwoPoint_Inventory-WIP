@@ -1,12 +1,10 @@
 fx_version 'cerulean'
 game 'gta5'
 
-name 'TwoPoint_Inventory'
-author 'TwoPoint Development'
-description 'Standalone SQL inventory + wallet + NPC selling + lockers for KQ Drug Empire (vMenu).'
-version '1.0.0'
-
-lua54 'yes'
+-- make config available on both sides
+shared_scripts {
+  'config.lua'
+}
 
 client_scripts {
   'client/npc_sell.lua',
@@ -16,6 +14,9 @@ client_scripts {
 
 server_scripts {
   '@oxmysql/lib/MySQL.lua',
+  'config.lua',         -- keep this before db/link (extra-safe ordering)
   'server/db.lua',
   'server/link.lua'
 }
+
+lua54 'yes'
